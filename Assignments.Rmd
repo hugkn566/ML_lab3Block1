@@ -1,0 +1,25 @@
+---
+title: "Lab3"
+author: "Hugo Knape & Zahra Jalil Pour & Niklas Larsson"
+date: "12/3/2020"
+output: pdf_document
+---
+
+# State of contribution 
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning = FALSE, include = FALSE}
+library(ggplot2)
+```
+
+# Assignment 1. 
+
+
+
+# Assignment 2.
+
+
+# Assignment 3.
