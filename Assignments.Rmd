@@ -22,4 +22,75 @@ library(ggplot2)
 # Assignment 2.
 
 
-# Assignment 3.
+# Assigment 3. Neural Networks
+
+```{r, echo=FALSE}
+library(neuralnet)
+set.seed(1234567890)
+Var <- runif(500, 0, 10)
+mydata <- data.frame(Var, Sin=sin(Var))
+tr <- mydata[1:25,] # Training
+te <- mydata[26:500,] # Test
+```
+
+```{r}
+# Random initialization of the weights in the interval [-1, 1]
+set.seed(12345)
+nlay = c(16,8,4) # Number of layers and neurons for each layer
+winit = runif(10000,-1,1) #Exaggerated to ensure it covers the number of weights (else function will randomize its own)
+nn <- neuralnet(Sin ~ Var, tr, hidden = nlay , startweights = winit,  threshold = 1e-4, lifesign = "minimal")
+#plot(nn)
+
+```
+The result of this neural net is very good as seen in the graph below, it follows almost perfectly.
+Three hidden layers was used with 16, 8 and 4 neurons at each respective layer. The convergence threshold was change to 1e-04.
+```{r, echo=FALSE}
+# Plot of the training data (black), test data (blue), and predictions (red)
+plot(tr, cex=2, main = "Training vs Testing vs Predicted")
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn,te), col="red", cex=1)
+legend("bottomright", legend = c("Training", "Testing", "Predicted"), col = c("black","blue","red"), pch = c("o","o","o"))
+```
+
+Using the same model to predict from another uniform distribution in the interval of [0,20] gives mixed results. The model predicts very good in the interval [0,10] which it was trained on but does not predict at all in (10,20]. This means that the model is not generalized and can only predict values from what it has seen before, i.e. it does not capture the periodical behaivour of the sin-function.
+```{r, echo=FALSE}
+# Generate new data
+set.seed(1234567890)
+Var <- runif(500, 0, 20)
+mydata2 <- data.frame(Var, Sin=sin(Var))
+
+# Plot of the training data (black), test data (blue), and predictions (red)
+plot(mydata2[,1], predict(nn,mydata2), col="red", cex=1, main = "Predicting from interval [0,20]", ylab = "Sin", xlab = "Var")
+points(mydata2[,1], mydata2[,2], col = "blue", cex=1)
+legend("bottomleft", legend = c("Predicted", "True"), col = c("red","blue"), pch = c("o","o"))
+```
+
+
+```{r}
+
+set.seed(1234567890)
+Var <- runif(500, 0, 20)
+mydata3 <- data.frame(Sin=sin(Var), Var)
+tr3 <- mydata[1:25,] # Training
+te3 <- mydata[26:500,] # Test
+
+# Random initialization of the weights in the interval [-1, 1]
+set.seed(12345)
+nlay3 = c(2,2,1) # Number of layers and neurons for each layer
+winit3 = runif(100000,-1,1) #Exaggerated to ensure it covers the number of weights (else function will randomize its own)
+nn3 <- neuralnet(Var ~ Sin, mydata3, hidden = nlay3, startweights = winit3, lifesign = "full", stepmax = 5e4)
+
+```
+The number of of neurons where tuned to make it converge at the default threshold.
+Predicting the opposite direction, from $sin(x) \rightarrow x$, gives bad results. The predicted result is approximated to the mean of the true output values (the interval $[0,20]$). The correct mathematical solution would be to use $arcsine(sin(x))$ but as this functions output is only defined in the interval $[-\frac{\pi}{2},\frac{\pi}{2}]$ the model will not be able to predict this.
+In other word, the sine function will only output values $[-1,1]$ no matter how large or small the input due to its' periodic nature. When the model is trained on data where the input is between $[-1,1]$ and output ranges $[0,20]$ there will not be a pattern to follow as some information is "lost" in the sine-function.
+
+In the graph below it is shown that it would not be possible to predict in this direction.
+```{r, echo=FALSE}
+# Plot of the training data (black), test data (blue), and predictions (red)
+plot(mydata3, cex=2, main = "Predicting x from Sin(x)", ylim = c(-8,20), xlab = "Sin(x)",ylab="x" )
+pred = predict(nn3,mydata3)
+points(mydata3$Sin, pred, col="red", cex=1)
+points(mydata3$Sin, asin(mydata3$Sin), col="blue", cex=1)
+legend("bottom", legend = c("x","Predicted","Arcsin(Sin(x))"), col = c("black","red","blue"), pch = c("o","o","o"))
+```
