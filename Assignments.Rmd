@@ -16,10 +16,125 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, warning = FALSE, include = FALSE}
 library(ggplot2)
+library(geosphere)
+library(dplyr)
+
 ```
 
-# Assignment 1. 
+# Assignment 1. Kernel Methods
 
+```{r}
+set.seed(1234567890)
+stations <- read.csv("stations.csv")
+temps <- read.csv("temps50k.csv")
+st <- merge(stations,temps,by="station_number")
+
+
+a <- 58.4274 # The point to predict (up to the students)
+b <- 14.826
+p2 <- c(a,b)
+date_pred <- "2003-07-04" # The date to predict (up to the students)
+times <- c("04:00:00", "06:00:00", "08:00:00","10:00:00","12:00:00","14:00:00","16:00:00" ,
+           "18:00:00","20:00:00","22:00:00","24:00:00")
+temp <- vector(length=length(times))
+st <- st %>% filter(as.Date(date)<as.Date(date_pred))
+
+
+#### DISTANCE
+
+dist <- st[,c(1,2,4,5)]
+stations <- unique(dist)
+physical_dist <- distHaversine(p2, stations[,3:4])
+stations$dist <- physical_dist
+st_2  <- merge(stations,st,by="station_number")
+distance <- st_2$dist
+
+
+####DAYS
+
+library(lubridate)
+date_df <- as.Date(st$date)
+year(date_df) <- 2020
+date_pred <- as.Date(date_pred)
+year(date_pred) <- 2020
+diff_days <- as.numeric(abs(date_pred-date_df))
+diff_days <- ifelse(diff_days<183, diff_days, 365-diff_days)
+st$diff_days <- diff_days
+### HOUR
+
+times <- strptime(times, format = "%H:%M:%S")
+st$time <- strptime(st$time, format = "%H:%M:%S")
+time_diff <- data.frame(diff_4 =rep(0,nrow(st)), diff_6 = rep(0,nrow(st)), diff_8 =rep(0,nrow(st))
+                        , diff_10 = rep(0,nrow(st)), diff_12 = rep(0,nrow(st)), diff_14 = rep(0,nrow(st))
+                        , diff_16 = rep(0,nrow(st)), diff_18 = rep(0,nrow(st)), diff_20 =rep(0,nrow(st))
+                        , diff_22 =rep(0,nrow(st)), diff_24 = rep(0,nrow(st)))
+for (i in 1:ncol(time_diff)) {
+  time_diff[,i] <- (as.numeric(abs(difftime(times[i], st$time, unit = "hours"))))
+  time_diff[,i] <- ifelse(time_diff[,i]<12, time_diff[,i] , 24-time_diff[,i])
+}
+```
+
+First we do some data processing. We compute the distance between the by using distHaversine. For the days we begin to set all dates to the same year to be able to count the exact days diffs it is. After that we use ifelse to be able to get the correct number of days between to dates. For the hour we compute the the difference between times for all the different timepoints. We use ifelse here as well.
+
+
+#### Kernels
+
+```{r}
+par(mfrow=c(1,3))
+#Distance smoothing
+h_distance <- 300000
+kernel_distance <- exp(-(distance/h_distance)^2)
+plot(distance, kernel_distance, main = "Distance kernel")
+
+#Day smoothing 
+h_date <- 30
+kernel_date <- exp(-(diff_days/h_date)^2)
+plot(diff_days, kernel_date, main = "Date kernel")
+
+#Hour smoothing
+h_time <- 3
+kernel_hour <- exp(-(time_diff/h_time)^2)
+plot(time_diff[,1], kernel_hour$diff_4, main = "Hour kernel, hour 4")
+```
+
+Here we can see the 3 different kernels for Distance, Date and Hour. For distance we choosed h 30000, for date h 30 and for hour h 3. This is very subjectively chosen 
+but it feels reasonable when we have weather data.
+
+#### Predicition, Multiplying Kernels. 
+
+```{r}
+#### MULTIPLYING KERNELS ####
+
+for (i in 1:ncol(kernel_hour)){
+ temp[i] <-  sum(kernel_distance*kernel_date*kernel_hour[,i]*st$air_temperature)/
+   sum(kernel_distance*kernel_date*kernel_hour[,i])
+}
+mult_kernels <- data.frame(temp, times)
+plot(mult_kernels$times, mult_kernels$temp, type = "o", main = "Prediction for 2003-07-04, multiplying", ylab = "Temp", xlab = "Hour")
+
+
+```
+The plot above shows the predicted temperature for 4th July 2003 for different hours with multiplied kernels. We can see that the temperature looks reasonable for the model with lower temperatures and morning and night and high temperature around 12.00.
+
+#### Predicition, Addition kernels.
+
+```{r}
+#### ADDING KERNELS ####
+
+for (i in 1:ncol(kernel_hour)){
+  temp[i] <-  sum((kernel_distance+kernel_date+kernel_hour[,i])*st$air_temperature)/
+    sum(kernel_distance+kernel_date+kernel_hour[,i])
+}
+add_kernels <- data.frame(temp, times)
+plot(add_kernels$times, add_kernels$temp, type = "o", main = "Prediction for 2003-07-04, addition",
+      ylab = "Temp", xlab = "Hour")
+```
+
+The plot above shows the predicted temperature for 4th July 2003 for different hours with summing kernels. We can see that the temperature looks not reasonable for the model with very low temperatures for the whole day and that it only differs one degree on the whole day. 
+
+#### Conclusion 
+
+We can see that the model with multiplying kernels are much better than the model with summing kernels. This may be due to when we add kernels together, a kernel with very small values get no impact at all and kernels with large values gets all the impact. If we compare that with when we multiplies kernels all kernels are still given an effect to the prediction because even if the value is small or big. 
 
 
 # Assignment 2.
