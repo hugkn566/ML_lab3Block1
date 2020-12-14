@@ -6,8 +6,11 @@ output: pdf_document
 ---
 
 # State of contribution 
+### Assignment1: Hugo Knape
+### Assignment2: Zahra Jalilpour
+### Assignment3: Niklas Larsson
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -84,7 +87,7 @@ nn3 <- neuralnet(Var ~ Sin, mydata3, hidden = nlay3, startweights = winit3, life
 The number of of neurons where tuned to make it converge at the default threshold.
 Predicting the opposite direction, from $sin(x) \rightarrow x$, gives bad results. The predicted result is approximated to the mean of the true output values (the interval $[0,20]$). The correct mathematical solution would be to use $arcsine(sin(x))$ but as this functions output is only defined in the interval $[-\frac{\pi}{2},\frac{\pi}{2}]$ the model will not be able to predict this.
 
-In other words: The sine function will only output values $[-1,1]$ no matter how large or small the input due to its' periodic nature. When the model is trained on data where the input is between $[-1,1]$ and output ranges $[0,20]$ it does not find the pattern to follow as some information is "lost" in the sine-function.
+In other words: The sine function will only output values $[-1,1]$ no matter how large or small the input due to its' periodic nature. When the model is trained on data where the input is between $[-1,1]$ and output ranges $[0,20]$ it does not find the pattern to follow as some information is "lost" in the sine-function. It might be possible to train a model to learn this but it would require more time and most likley a different approach.
 
 In the graph below it is shown that it would not be possible to predict in this direction.
 ```{r, echo=FALSE}
