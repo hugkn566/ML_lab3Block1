@@ -116,7 +116,7 @@ plot(mult_kernels$times, mult_kernels$temp, type = "o", main = "Prediction for 2
 ```
 The plot above shows the predicted temperature for 4th July 2003 for different hours with multiplied kernels. We can see that the temperature looks reasonable for the model with lower temperatures and morning and night and high temperature around 12.00.
 
-#### Predicition, Addition kernels.
+#### Predicition, Adding kernels.
 
 ```{r}
 #### ADDING KERNELS ####
