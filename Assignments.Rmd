@@ -2,7 +2,10 @@
 title: "Lab3"
 author: "Hugo Knape & Zahra Jalil Pour & Niklas Larsson"
 date: "12/3/2020"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 # State of contribution 
@@ -11,7 +14,7 @@ output: pdf_document
 ### Assignment3: Niklas Larsson
   
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,fig.align='center', fig.width=4.5,fig.height=3)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, warning = FALSE, include = FALSE}
@@ -23,7 +26,7 @@ library(dplyr)
 
 # Assignment 1. Kernel Methods
 
-```{r,out.width="100%", fig.width=11, fig.height=9}
+```{r,fig.align='center', fig.width=4.5,fig.height=3}
 set.seed(1234567890)
 stations <- read.csv("stations.csv")
 temps <- read.csv("temps50k.csv")
@@ -79,7 +82,7 @@ First we do some data processing. We compute the distance between the by using d
 
 #### Kernels
 
-```{r,out.width="100%", fig.width=11, fig.height=9}
+```{r,fig.align='center', fig.width=4.5,fig.height=3}
 par(mfrow=c(1,3))
 #Distance smoothing
 h_distance <- 300000
@@ -102,7 +105,7 @@ but it feels reasonable when we have weather data.
 
 #### Predicition, Multiplying Kernels. 
 
-```{r,out.width="100%", fig.width=11, fig.height=9}
+```{r,fig.align='center', fig.width=4.5,fig.height=3}
 #### MULTIPLYING KERNELS ####
 
 for (i in 1:ncol(kernel_hour)){
@@ -118,7 +121,7 @@ The plot above shows the predicted temperature for 4th July 2003 for different h
 
 #### Predicition, Adding kernels.
 
-```{r,out.width="100%", fig.width=11, fig.height=9}
+```{r,fig.align='center', fig.width=4.5,fig.height=3}
 #### ADDING KERNELS ####
 
 for (i in 1:ncol(kernel_hour)){
@@ -290,7 +293,7 @@ Predicting the opposite direction, from $sin(x) \rightarrow x$, gives bad result
 In other words: The sine function will only output values $[-1,1]$ no matter how large or small the input due to its' periodic nature. When the model is trained on data where the input is between $[-1,1]$ and output ranges $[0,20]$ it does not find the pattern to follow as some information is "lost" in the sine-function. It might be possible to train a model to learn this but it would require more time and most likley a different approach.
 
 In the graph below it is shown that it would not be possible to predict in this direction.
-```{r, echo=FALSE}
+```{r,fig.align='center', fig.width=4.5,fig.height=3, echo=FALSE}
 # Plot of the training data (black), test data (blue), and predictions (red)
 plot(mydata3, cex=2, main = "Predicting x from Sin(x)", ylim = c(-8,20), xlab = "Sin(x)",ylab="x" )
 pred = predict(nn3,mydata3)
