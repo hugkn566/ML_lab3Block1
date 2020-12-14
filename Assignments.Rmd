@@ -293,7 +293,7 @@ Predicting the opposite direction, from $sin(x) \rightarrow x$, gives bad result
 In other words: The sine function will only output values $[-1,1]$ no matter how large or small the input due to its' periodic nature. When the model is trained on data where the input is between $[-1,1]$ and output ranges $[0,20]$ it does not find the pattern to follow as some information is "lost" in the sine-function. It might be possible to train a model to learn this but it would require more time and most likley a different approach.
 
 In the graph below it is shown that it would not be possible to predict in this direction.
-```{r,fig.align='center', fig.width=4.5,fig.height=3, echo=FALSE}
+```{r,fig.align='center', fig.width=8,fig.height=6, echo=FALSE}
 # Plot of the training data (black), test data (blue), and predictions (red)
 plot(mydata3, cex=2, main = "Predicting x from Sin(x)", ylim = c(-8,20), xlab = "Sin(x)",ylab="x" )
 pred = predict(nn3,mydata3)
